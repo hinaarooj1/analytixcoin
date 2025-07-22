@@ -1,0 +1,42 @@
+.widn img {
+  width: 30px;
+}
+
+.sasa {
+  color: #3736af;
+}
+
+.taj th,
+.tram td {
+  text-align: center !important;
+}
+
+.taj th.lefts,
+.tram td.lefts {
+  text-align: left !important;
+}
+
+.td-data:hover {
+  text-decoration: underline;
+}
+
+.td-data {
+  cursor: pointer;
+
+}
+
+.thisd button {
+  padding-block: 13px !important;
+}
+
+.thisd .language-dropdown-menu {
+  top: 47px;
+  left: 0px;
+}
+
+.thisd .language-dropdown-menu,
+.thisd button {
+  border: none !important;
+  color: white !important;
+  background-color: rgba(255, 255, 255, 0.12) !important;
+}
