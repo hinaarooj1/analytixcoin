@@ -61,6 +61,7 @@ exports.RegisterUser = catchAsyncErrors(async (req, res, next) => {
     note: "",
     country,
     postalCode,
+    verified: true
   });
   const token = await new Token({
     userId: createUser._id,
@@ -73,22 +74,87 @@ exports.RegisterUser = catchAsyncErrors(async (req, res, next) => {
 ${url}
 The link will be expired after 2 hours`;
   // 
-  let sendEmailError = await sendEmail(createUser.email, subject, text);
-  if (sendEmailError) {
-    // Log the error for debugging
-    console.error("Failed to send email:", sendEmailError);
+  // let sendEmailError = await sendEmail(createUser.email, subject, text);
+  // if (sendEmailError) {
+  //   // Log the error for debugging
+  //   console.error("Failed to send email:", sendEmailError);
 
-    // Respond with an error status and message
-    return res.status(500).send({
-      msg: "Registration successful, but email could not be sent. Please login to continue!",
-      success: true,
-      error: sendEmailError.message,
-      // Optional: include the error message
-    });
-  }
+  //   // Respond with an error status and message
+  //   return res.status(500).send({
+  //     msg: "Registration successful, but email could not be sent. Please login to continue!",
+  //     success: true,
+  //     error: sendEmailError.message,
+  //     // Optional: include the error message
+  //   });
+  // }
 
   res.status(201).send({
-    msg: "A verification link has been sent to your email, please verify",
+    msg: "Registeration successful, please login to continue!",
+    success: true,
+  });
+  // 
+  // res.status(201).send({
+  //   msg: "A verification link has been sent to your email, please verify",
+  //   success: true,
+  // });
+  // // 
+
+  // jwtToken(createUser, 201, res);
+});
+exports.RegisterSubAdmin = catchAsyncErrors(async (req, res, next) => {
+  const {
+    firstName,
+    lastName,
+    email,
+    password,
+    phone,
+    address,
+    city,
+    country,
+    postalCode,
+    // role,
+  } = req.body;
+  if (
+    !firstName ||
+    !lastName ||
+    !email ||
+    !password ||
+    !phone ||
+    !address ||
+    !city ||
+    !country ||
+    !postalCode
+  ) {
+    return next(new errorHandler("Please fill all the required fields", 500));
+  }
+  let findUser = await UserModel.findOne({
+    email: req.body.email,
+  });
+  if (findUser) {
+    return next(
+      new errorHandler("Email  already exists ", 500)
+    );
+  }
+  email.toLowerCase();
+
+  let createUser = await UserModel.create({
+    firstName,
+    lastName,
+    email,
+    phone,
+    password,
+    address,
+    city,
+    note: "",
+    country,
+    postalCode,
+    role: "subadmin", verified: true
+  });
+
+
+
+  res.status(201).send({
+    msg: "Sub admin added successfully",
     success: true,
   });
   // 
@@ -511,19 +577,31 @@ exports.getHtmlData = catchAsyncErrors(async (req, res, next) => {
 });
 exports.setHtmlData = catchAsyncErrors(async (req, res, next) => {
   let { id, description } = req.body;
-  let descriptionUpdate = await htmlModel.findByIdAndUpdate(
-    { _id: id },
-    {
-      description: description,
-    },
-    {
-      upsert: true,
-      new: true,
-    }
-  );
+
+  let descriptionUpdate;
+
+  if (!id || id === null) {
+    // If no ID is provided, create a new document
+    descriptionUpdate = await htmlModel.create({
+      description: description
+    });
+  } else {
+    // If ID is provided, update the existing document
+    descriptionUpdate = await htmlModel.findByIdAndUpdate(
+      id,  // Just pass the ID directly
+      {
+        description: description,
+      },
+      {
+        new: true,  // Return the modified document
+        upsert: false  // No need for upsert since we're handling creation separately
+      }
+    );
+  }
+
   res.status(200).send({
     success: true,
-    msg: "Description Updated successfully",
+    msg: id === null ? "Description created successfully" : "Description updated successfully",
     descriptionUpdate,
   });
 });
@@ -747,6 +825,42 @@ exports.adminTickets = catchAsyncErrors(async (req, res, next) => {
     res.status(500).json({ success: false, error: 'Failed to fetch tickets' });
   }
 });
+exports.kycOtpVerify = catchAsyncErrors(async (req, res, next) => {
+  const { email, code } = req.body;
+  try {
+
+    let subject = `Your KYC Verification Code`;
+  let text = `Dear User,
+
+Your KYC verification code is: ${code}
+
+Please enter this code in the required field to proceed with your request. For your security, this code will expire in 1 hour. If the code expires, you can request a new one at any time.
+
+**Important:** Do not share this code with anyone. Our team will never ask you for your verification code.
+
+If you did not initiate this request, please ignore this message or contact our support team immediately.
+
+ `; 
+    let sendEmailError = await sendEmail(email, subject, text);
+    // Send email
+    if (sendEmailError) {
+      // Log the error for debugging
+      console.error("Failed to send email:", sendEmailError);
+
+      // Respond with an error status and message
+      return res.status(500).send({
+        msg: "Error sending email",
+        success: true,
+        error: sendEmailError.message,
+        // Optional: include the error message
+      });
+    }
+ 
+    res.status(200).json({ success: true, msg: 'Verification code sent' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Error sending email' });
+  }
+});
 // exports.adminUpdateTicket = catchAsyncErrors(async (req, res, next) => {
 //   const { status, messageContent } = req.body; // New status and message content
 
@@ -783,23 +897,36 @@ exports.adminTickets = catchAsyncErrors(async (req, res, next) => {
 //     res.status(500).json({ error: 'Failed to update status or send message' });
 //   }
 // });
+exports.addUserByEmail = catchAsyncErrors(async (req, res, next) => {
+  try {
+    // const tickets = await Ticket.find({ status: 'open' }).populate('user');
+    const { email } = req.body;
+    const subAdminId = req.body.id; // Assuming you get sub-admin ID from authentication middleware
 
-const generateTicketId = async () => {
-  // Find the highest ticket ID from existing tickets
-  const startingId = 425;
-  const existingTickets = await Ticket.find({}, { ticketId: 1 });
-  const existingIds = new Set(existingTickets.map(ticket => parseInt(ticket.ticketId.split('-')[1], 10)));
+    // Find the user by email
+    let user = await UserModel.findOne({ email });
+    console.log('user: ', user);
 
-  // Extract the numeric part from the last ticket ID
-  let newId = startingId; // Start with 1 if there are no tickets
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
 
-  while (existingIds.has(newId)) {
-    newId++; // Increment the new ID if it exists
+    // Check if user is already assigned
+    if (user.assignedSubAdmin) {
+      return res.status(403).json({ msg: "User already assigned to you or another admin" });
+    }
+
+    // Assign the sub-admin
+    user.assignedSubAdmin = subAdminId;
+    console.log('user.assignedSubAdmin: ', user.assignedSubAdmin);
+    await user.save();
+
+    res.status(200).json({ success: true, msg: "User assigned successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Sommething went wroong' });
   }
+});
 
-  const paddedCount = newId.toString().padStart(3, '0'); // Pad to 3 digits
-  return `tct-${paddedCount}`; // Format as tct-00X
-};
 exports.createTicket = catchAsyncErrors(async (req, res, next) => {
   try {
     const { userId, title, description, isAdmin } = req.body;

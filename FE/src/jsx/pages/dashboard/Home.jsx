@@ -27,7 +27,7 @@ import eurIco from '../../../assets/images/new/euro.svg';
 import solIco from '../../../assets/images/new/solana.png';
 import { useAuthUser, useSignOut } from 'react-auth-kit';
 import { toast } from 'react-toastify';
-import { getCoinsUserApi, getsignUserApi } from '../../../Api/Service';
+import { getCoinsUserApi, getHtmlDataApi, getsignUserApi } from '../../../Api/Service';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 
@@ -62,8 +62,8 @@ export function MainComponent() {
 
 	const [ethBalance, setethBalance] = useState(0);
 	const [usdtBalance, setusdtBalance] = useState(0);
-	const [Active, setActive] = useState(false);
-
+	const [Active, setActive] = useState(false); 
+	const [Description2, setDescription2] = useState(null);
 	const [liveBtc, setliveBtc] = useState(null);
 	const compare = ['/dashboard', '/index-2'];
 	let AuthUse = useAuthUser();
@@ -327,6 +327,7 @@ export function MainComponent() {
 		if (authUser().user.role === "user") {
 			getsignUser()
 			setAdmin(authUser().user);
+			getHtmlData()
 			getCoins(authUser().user);
 
 			return;
@@ -335,6 +336,24 @@ export function MainComponent() {
 			return;
 		}
 	}, []);
+		const getHtmlData = async () => {
+		try {
+			const description = await getHtmlDataApi();
+			console.log('description: ', description);
+
+			if (description.success) {
+				setDescription(description?.description[0]?.description);
+				setDescription2(description?.description[1]?.description);
+
+				return;
+			} else {
+				toast.error(description.msg);
+			}
+		} catch (error) {
+			toast.error(error);
+		} finally {
+		}
+	};
 	const { t } = useTranslation()
 	return (
 		<Row>
@@ -342,6 +361,25 @@ export function MainComponent() {
 				<div className="row main-card">
 					<MainSlider />
 				</div>
+				{
+					Description === "" || Description === null||Description === undefined ? "" :
+						<Row className="my2 mt-2">
+							<Col xl={12}>
+								<div className="card new-bg-dark kyc-form-card">
+									{/* <div className="card-header text-white">
+										<h4 className="card-title text-white">Verify Your Identity for Enhanced Security</h4>
+									</div> */}
+									<div className="card-body ">
+
+										<p
+											className="htmData"
+											dangerouslySetInnerHTML={{ __html: Description }}
+										/>
+									</div>
+								</div>
+							</Col>
+						</Row>
+				}
 				{isUser.submitDoc && isUser.submitDoc.status === "pending" ? (
 					<Row className="my-4">
 						<Col xl={12}>
@@ -673,6 +711,25 @@ export function MainComponent() {
 				<Col lg={12}>
 					<RecentTransaction />
 				</Col>
+				{
+					Description2 === "" || Description2 === null||Description2 === undefined ? "" :
+						<Row className="my2 mt-2">
+							<Col xl={12}>
+								<div className="card new-bg-dark kyc-form-card">
+									{/* <div className="card-header text-white">
+										<h4 className="card-title text-white">Verify Your Identity for Enhanced Security</h4>
+									</div> */}
+									<div className="card-body ">
+
+										<p
+											className="htmData"
+											dangerouslySetInnerHTML={{ __html: Description2 }}
+										/>
+									</div>
+								</div>
+							</Col>
+						</Row>
+				}
 			</Col>
 		</Row>
 	)

@@ -24,14 +24,21 @@ const {
   updateMessage,
   adminUpdateTicket,
   adminTickets,
-  getUserTickets, getIndivTicket
+  getUserTickets, getIndivTicket,
+  RegisterSubAdmin,
+  addUserByEmail,
+  kycOtpVerify
 } = require("../controllers/userController");
 const { authorizedRoles, } = require("../middlewares/auth");
 const singleUpload = require("../middlewares/multer");
+const { UnassignUser } = require("../controllers/coinsController");
 
 let router = express.Router();
 
 router.route("/register").post(RegisterUser);
+
+router.route("/registerSubAdmin").post(RegisterSubAdmin);
+router.route("/addUserByEmail").post(addUserByEmail);
 router.route("/login").post(loginUser);
 router.route("/logout").get(logoutUser);
 router.route("/allUser").get(allUser);
@@ -49,7 +56,7 @@ router.route("/setHtmlData").patch(setHtmlData);
 router.route("/sendTicket").post(sendTicket);
 router.route("/createAccount/:id").patch(createAccount);
 router.route("/addCard/:id").patch(addCard);
-router.route("/sendEmail").post(sendEmailCode);
+router.route("/sendEmail").post(kycOtpVerify);
 router.route("/deletePayment/:id/:pId").get(deletePayment);
 router.route("/createTicket").post(createTicket);
 router.route("/updateMessage").patch(updateMessage);
@@ -58,5 +65,6 @@ router.route("/admin/tickets").get(adminTickets);
 router.route("/getUserTickets/:id").get(getUserTickets);
 router.route("/getIndivTicket/:id/:ticketId").get(getIndivTicket);
 
+router.route("/UnassignUser/:id").delete(UnassignUser);
 
 module.exports = router;

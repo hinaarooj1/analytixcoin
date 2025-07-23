@@ -84,6 +84,26 @@ exports.getCoins = catchAsyncErrors(async (req, res, next) => {
   });
 
 });
+exports.UnassignUser = catchAsyncErrors(async (req, res, next) => {
+  let { id } = req.params;
+  let signleUser = await userModel.findById({ _id: id });
+  console.log('signleUser: ', signleUser);
+
+  if (!signleUser) {
+    res.status(200).send({
+      success: false,
+      msg: "User not found or already has been unasssigned",
+    });
+  }
+  // Set assignedSubAdmin to null
+  signleUser.assignedSubAdmin = null;
+  await signleUser.save();
+  res.status(200).send({
+    success: true,
+    msg: "User has been unasssigned successfully",
+    // getCoin,
+  });
+});
 exports.getUserCoin = catchAsyncErrors(async (req, res, next) => {
   let { id } = req.params;
   let getCoin = await userCoins.findOne({ user: id });

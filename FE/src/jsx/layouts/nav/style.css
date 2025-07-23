@@ -10,7 +10,11 @@
 .tram td {
   text-align: center !important;
 }
-
+.this-act .active{
+  background-color: #3736af;
+  border-radius: 100px;
+  
+}
 .taj th.lefts,
 .tram td.lefts {
   text-align: left !important;
@@ -39,4 +43,16 @@
   border: none !important;
   color: white !important;
   background-color: rgba(255, 255, 255, 0.12) !important;
+}
+@media (max-width:1430px) {
+  .choda-thes{
+    display: none !important;
+  }
+  
+}
+@media (max-width:991px) {
+  .choda-thes{
+    display: flex !important;
+  }
+  
 }

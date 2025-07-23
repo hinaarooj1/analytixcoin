@@ -20,6 +20,7 @@ const Kyc = () => {
 
   useEffect(() => {
     if (authUser().user.role === "user") {
+   
       return;
     } else if (authUser().user.role === "admin") {
       Navigate("/admin/dashboard");

@@ -16,6 +16,7 @@ import { SVGICON } from "../../constant/theme";
 import { useTranslation } from "react-i18next";
 import usflg from '../../../assets/images/united-states.png'
 import franceflg from '../../../assets/images/france.png'
+import useMenuList from "./Menu";
 const listBlog = [
   { icon: SVGICON.LtcSvgIcon, name: 'LTC in DexignLab' },
   { icon: SVGICON.BtcSvgIcon, name: 'BTC/USD in DexignLab' },
@@ -27,8 +28,7 @@ const listBlog = [
 
 const Header = ({ onNote }) => {
 
-
-
+ 
   const compare = ['/dashboard', '/index-2'];
   let AuthUse = useAuthUser();
   let signOut = useSignOut();
@@ -143,7 +143,7 @@ const Header = ({ onNote }) => {
   }, [walletActive])
   const { i18n, t } = useTranslation();
   const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
-
+ const menuItems = useMenuList();
   useEffect(() => {
     i18n.changeLanguage(language); // Apply stored language
   }, [language, i18n]);
@@ -159,7 +159,14 @@ const Header = ({ onNote }) => {
     setIsOpen(!isOpen); // Toggle dropdown visibility on click
   };
 
-
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 991);
+useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth > 991);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   return (
     <>
       <div className={`header ${path === "dashboard" || path === "index-2" ? 'home' : ''} ${headerFix ? 'is-fixed' : ''}`}>
@@ -167,6 +174,24 @@ const Header = ({ onNote }) => {
           <nav className="navbar navbar-expand">
             <div className="collapse navbar-collapse justify-content-between">
               <div className="header-left"></div>
+                      {isDesktop && (
+                <ul className="navbar-nav mx-auto this-act">
+                  {menuItems.map((item, index) => (
+                    <li key={index} className={`nav-item ${item.classsChange}`}>
+                     {item.onClick === "onLogout" ? (
+                      <></>
+                      ) : (
+                       <NavLink to={item.to} className="nav-link text-white">
+                          
+                          <span>{item.title}</span>
+                        </NavLink>
+                      )}
+                        
+                      
+                    </li>
+                  ))}
+                </ul>
+              )}
               <ul className="navbar-nav header-right">
                 {/* on mobile size */}
                 <div className="language-dropdown thisd">
@@ -204,15 +229,15 @@ const Header = ({ onNote }) => {
                   </Link>
                 </li>
 
-                <Dropdown as="li" className="nav-item header-profile2">
+                <Dropdown as="li" className="nav-item choda-thes header-profile2">
                   <Dropdown.Toggle to={"#"} className="nav-link i-false  noap" as="div">
                     <div className="header-info2 d-flex align-items-center">
-                      <div className="d-flex align-items-center sidebar-info">
+                      <d  iv className="d-flex align-items-center sidebar-info">
                         <div>
                           <h5 className="mb-0 text-white">{Admin.firstName} {Admin.lastName}</h5>
                           <span className="d-block text-end">{Admin.email}</span>
                         </div>
-                      </div>
+                      </d>
                       <img src={profile} alt="profile" />
                     </div>
                   </Dropdown.Toggle>

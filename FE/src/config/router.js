@@ -40,6 +40,11 @@ import CreateTicketpg from "../jsx/pages/user/createTicketpg.js";
 import AllTicket from "../jsx/pages/user/AllTicket.js";
 import ScrollToTop from "./top.js";
 import Supportpage from "../jsx/Admin/createTicketMain.js";
+
+import AddSubAdmin from "../jsx/Admin/AddsubAdmin";
+import AdminSubAdmin from "../jsx/Admin/AdminSubAdmin.js";
+
+import SubAdminUsers from "../jsx/Admin/SubAdminUsers.js";
 export default function Router() {
 
   return (
@@ -267,6 +272,30 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <UserAssets />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/add-subadmin"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <AddSubAdmin />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/subadmin"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <AdminSubAdmin />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/subadmin/users/:id"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <SubAdminUsers />
               </RequireAuth>
             }
           />
