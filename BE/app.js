@@ -18,7 +18,8 @@ const cron = require("node-cron");
 let ALLOWED_ORIGINS = [
   "https://analytixcoin.com",
   "https://www.analytixcoin.com",
-  "https://analytixcoin.vercel.app",
+  "https://analitikoin.com",
+  "https://www.analitikoin.com",
   "http://localhost:3000",
   "http://localhost:3001",
   "http://localhost:3002",
